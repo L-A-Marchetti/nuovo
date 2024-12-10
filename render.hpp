@@ -25,7 +25,7 @@ class render
 		~render();
 		void background();
 		void modules(const std::vector<module*>& modules);
-		void show();
+		void show(const std::vector<module*>& modules);
 		SDL_Renderer* get_renderer();
 		void destroy();
 };

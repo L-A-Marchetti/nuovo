@@ -24,9 +24,7 @@ void text::write(std::string t, SDL_Color c, int x, int y)
 void text::destroy()
 {
 	int i = 0;
-	std::cout << "\tText destroy sequence" << std::endl;
-        TTF_CloseFont(this->f);
-        std::cout << "\t\t" << ++i << ". Font closed" << std::endl;
+    TTF_CloseFont(this->f);
 	return;
 }
 

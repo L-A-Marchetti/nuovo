@@ -4,16 +4,22 @@
 #include <string>
 #include <vector>
 
+typedef struct knob
+{
+	std::string label;
+	int value;
+} knob;
+
 class module
 {
 	private:
 		std::string label;
-		std::vector<std::string> knobs;
+		std::vector<knob> knobs;
 	public:
-		module(std::string label, std::vector<std::string> knobs);
+		module(std::string label, std::vector<knob> knobs);
 		~module();
 		std::string get_label();
-		std::vector<std::string> get_knobs();
+		std::vector<knob> get_knobs();
 };
 
 #endif //MODULE_HPP

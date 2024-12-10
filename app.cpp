@@ -21,6 +21,17 @@ app::app(std::string title, int w, int h)
 	}
 	else std::cout << "\t" << ++i << ". Window created" << std::endl;
 	this->r = render(this->win);
+	module bd("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}});
+	module sd("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}});
+	module lt("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}});
+	module mt("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}});
+	module ht("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}});
+	module rshc("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}});
+	module hh("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}});
+	module c("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}});
+	this->modules = {&bd, &sd, &lt, &mt, &ht, &rshc, &hh, &c};
+	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
+	this->r.show(this->modules);
 	this->is_running = true;
 	std::cout << "\t" << ++i << ". App is running" << std::endl;
 	return;
