@@ -58,23 +58,23 @@ void render::modules(const std::vector<module*>& modules)
         int cursor_height = 20;
         int y_padding = 30; // Padding between faders
         // Faders
-        std::vector<knob> knobs = m->get_knobs();
+        std::vector<knob>& knobs = m->get_knobs();
         for (size_t i = 0; i < knobs.size(); i++)
         {
             int y_position = y + h + (i + 1) * y_padding + i * (fader_height + cursor_height);
             // Fader background
-            SDL_Rect fader_bg = {x, y_position, w, fader_height};
+            knobs[i].fader_rect = {x, y_position, w, fader_height};
             SDL_SetRenderDrawColor(this->r, DARK_GRAY.r, DARK_GRAY.g, DARK_GRAY.b, DARK_GRAY.a);
-            SDL_RenderFillRect(this->r, &fader_bg);
+            SDL_RenderFillRect(this->r, &knobs[i].fader_rect);
             float normalized_value = knobs[i].value / 127.0f;
             // Fader light
             SDL_Rect fader_light = {x + 2, y_position + 3, static_cast<int>(normalized_value * (w - 4)), light_height};
             SDL_SetRenderDrawColor(this->r, DARK_ORANGE.r, DARK_ORANGE.g, DARK_ORANGE.b, DARK_ORANGE.a);
             SDL_RenderFillRect(this->r, &fader_light);
             // Fader cursor
-            SDL_Rect fader_cursor = {x + static_cast<int>(normalized_value * w) - cursor_width / 2, y_position - 5, cursor_width, cursor_height};
+            knobs[i].cursor_rect = {x + static_cast<int>(normalized_value * w) - cursor_width / 2, y_position - 5, cursor_width, cursor_height};
             SDL_SetRenderDrawColor(this->r, BLUE_GRAY.r, BLUE_GRAY.g, BLUE_GRAY.b, BLUE_GRAY.a);
-            SDL_RenderFillRect(this->r, &fader_cursor);
+            SDL_RenderFillRect(this->r, &knobs[i].cursor_rect);
             // Knob label
             int knob_text_width = size(knobs[i].label) * 12 * 0.6f; // Facteur ajusté pour la largeur du texte
             int knob_center_x = x + (w / 2) - (knob_text_width / 2); // Centrage horizontal

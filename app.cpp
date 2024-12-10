@@ -21,15 +21,14 @@ app::app(std::string title, int w, int h)
 	}
 	else std::cout << "\t" << ++i << ". Window created" << std::endl;
 	this->r = render(this->win);
-	module bd("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}});
-	module sd("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}});
-	module lt("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}});
-	module mt("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}});
-	module ht("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}});
-	module rshc("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}});
-	module hh("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}});
-	module c("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}});
-	this->modules = {&bd, &sd, &lt, &mt, &ht, &rshc, &hh, &c};
+	this->modules.push_back(new module("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}}));
+	this->modules.push_back(new module("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}}));
+	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}));
+	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}));
+	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}));
+	this->modules.push_back(new module("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}}));
+	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}));
+	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->r.show(this->modules);
 	this->is_running = true;
@@ -39,18 +38,57 @@ app::app(std::string title, int w, int h)
 
 void app::run()
 {
-	std::cout << "Main loop started" << std::endl;
-	while (this->is_running)
+    std::cout << "Main loop started" << std::endl;
+    while (this->is_running)
 	{
-		SDL_Event e;
-		while (SDL_PollEvent(&e))
-		{
-			if (e.type == SDL_QUIT) this->is_running = false;
-		}
-	}
-	std::cout << "Main loop finished" << std::endl;
-	return;
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) this->is_running = false;
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+			{
+                SDL_Point mouse = {e.button.x, e.button.y};
+                for (size_t m = 0; m < this->modules.size(); ++m)
+				{
+                    std::vector<knob>& knobs = this->modules[m]->get_knobs();
+                    for (size_t i = 0; i < knobs.size(); ++i)
+					{
+                        if (SDL_PointInRect(&mouse, &knobs[i].fader_rect)) knobs[i].is_dragging = true;
+                    }
+                }
+            }
+            else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
+			{
+                for (size_t m = 0; m < this->modules.size(); ++m)
+				{
+                    std::vector<knob>& knobs = this->modules[m]->get_knobs();
+                    for (size_t i = 0; i < knobs.size(); ++i) knobs[i].is_dragging = false;
+                }
+            }
+            else if (e.type == SDL_MOUSEMOTION)
+			{
+    			for (size_t m = 0; m < this->modules.size(); ++m)
+				{
+    			    std::vector<knob>& knobs = this->modules[m]->get_knobs();
+    			    for (size_t i = 0; i < knobs.size(); ++i)
+					{
+    			        if (knobs[i].is_dragging)
+						{
+    			            int mouse_x = e.motion.x;
+    			            int knob_x = knobs[i].fader_rect.x;
+    			            int fader_width = knobs[i].fader_rect.w;
+    			            int new_value = std::clamp(mouse_x - knob_x, 0, fader_width);
+    			            knobs[i].value = (new_value * 127) / fader_width;
+    			        }
+    			    }
+    			}
+			}
+
+        }
+		this->r.show(this->modules);
+    }
+    std::cout << "Main loop finished" << std::endl;
 }
+
 
 void app::quit()
 {
@@ -59,6 +97,12 @@ void app::quit()
 	this->r.destroy();
 	SDL_DestroyWindow(this->win);
 	std::cout << "\t" << ++i << ". Window destroyed" << std::endl;
+	// Delete each module to free memory
+    for (module* m : this->modules) {
+        delete m;
+    }
+    this->modules.clear();
+	std::cout << "\t" << ++i << ". Dynamic allocation freed" << std::endl;
 	SDL_Quit();
 	std::cout << "\t" << ++i << ". SDL quit" << std::endl;
 	return;

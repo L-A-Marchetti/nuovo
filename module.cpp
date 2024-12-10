@@ -7,4 +7,4 @@ module::~module() {}
 
 std::string module::get_label() { return this->label; }
 
-std::vector<knob> module::get_knobs() { return this->knobs; }
+std::vector<knob>& module::get_knobs() { return this->knobs; }
