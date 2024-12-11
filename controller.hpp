@@ -15,7 +15,7 @@ typedef struct button
 class controller
 {
 	public:
-		button start = {.label="START", .size=100};
+		button start = {.label="START", .size=100, .state=true};
 		knob tempo = {"TEMPO", 120};
 		knob volume = {"VOLUME", 64};
 		controller();

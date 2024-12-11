@@ -8,6 +8,9 @@
 #include <string>
 #include <stdlib.h>
 #include <algorithm>
+#include <thread>
+#include <atomic>
+#include <chrono>
 
 #include "render.hpp"
 #include "controller.hpp"
@@ -25,6 +28,10 @@ class app
 		controller* c;
 		sequencer* s;
 		bool is_running;
+		//test
+		std::thread bpm_thread;
+		void bpm_worker();
+		//
 	public:
 		app(std::string title, int w, int h);
 		~app();

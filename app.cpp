@@ -30,6 +30,7 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	this->c = new controller();
 	std::cout << "\t" << ++i << ". Controller created" << std::endl;
 	this->s = new sequencer();
+	this->bpm_thread = std::thread(&app::bpm_worker, this);
 	this->r.show(this->modules, this->c, this->s);
 	this->is_running = true;
 	std::cout << "\t" << ++i << ". App is running" << std::endl;
@@ -114,10 +115,30 @@ void app::run()
     std::cout << "Main loop finished" << std::endl;
 }
 
+void app::bpm_worker() {
+	int i = 0;
+    using namespace std::chrono;
+    int ticks_per_beat = 4;
+    while (this->c->start.state)
+	{
+		int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
+        std::this_thread::sleep_for(milliseconds(interval_ms));
+		this->s->buttons[i%16].state = !this->s->buttons[i%16].state;
+		if (i != 0) this->s->buttons[(i - 1 + 16) % 16].state = !this->s->buttons[(i - 1 + 16) % 16].state;
+		i++;
+    }
+}
+
 
 void app::quit()
 {
 	int i = 0;
+	// test
+	this->c->start.state = false;
+	if (bpm_thread.joinable()) {
+	    bpm_thread.join();
+	}
+	//
 	std::cout << "App quit sequence" << std::endl;
 	this->r.destroy();
 	SDL_DestroyWindow(this->win);
