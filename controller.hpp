@@ -7,6 +7,7 @@
 typedef struct button
 {
 	std::string label;
+	int size;
 	SDL_Rect r;
 	bool state = false;
 } button;
@@ -14,7 +15,7 @@ typedef struct button
 class controller
 {
 	public:
-		button start = {.label="START"};
+		button start = {.label="START", .size=70};
 		knob tempo = {"TEMPO", 120};
 		knob volume = {"VOLUME", 64};
 		controller();

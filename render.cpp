@@ -92,30 +92,18 @@ void render::control(controller* c)
 {
 	int x = 20;
 	int y = 500;
-	int size = 70;
 	int pad = 20;
 	text label(this->r, 18, BASIC);
 	text screen(this->r, 76, SCREEN);
-	//BUTTON
-	int label_text_width = c->start.label.size() * 18 * 0.5f; // Text width approximation
-        int label_center_x = x + (size / 2) - (label_text_width / 2); // Center on x
-        label.write(c->start.label, DARK_GRAY, label_center_x, y);
-	c->start.r = {x, y+30, size, size};
-        SDL_SetRenderDrawColor(this->r, B_SHADOW.r, B_SHADOW.g, B_SHADOW.b, B_SHADOW.a);
-        SDL_RenderFillRect(this->r, &c->start.r);
-	SDL_Rect button_fg = {x+7, c->start.r.y + 5, size - 15, size - 15};
-        SDL_SetRenderDrawColor(this->r, B_LIGHT.r, B_LIGHT.g, B_LIGHT.b, B_LIGHT.a);
-        SDL_RenderFillRect(this->r, &button_fg);
-	SDL_Rect button_led = {button_fg.x+7, button_fg.y + 5, size - 30, 7};
-        SDL_SetRenderDrawColor(this->r, c->start.state ? LED.r : BLUE_GRAY.r,
-	c->start.state ? LED.g : BLUE_GRAY.g, c->start.state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
-        SDL_RenderFillRect(this->r, &button_led);
+        // Button
+        std::vector<button*> b = {&c->start};
+        this->but(b, x, y);
 	// Tempo Label
-	label_text_width = c->tempo.label.size() * 18 * 0.5f;
-        label_center_x = c->start.r.x + c->start.r.w + pad + (200 / 2) - (label_text_width / 2); // Center on x
+	int label_text_width = c->tempo.label.size() * 18 * 0.5f;
+        int label_center_x = c->start.r.x + c->start.r.w + pad + (200 / 2) - (label_text_width / 2); // Center on x
         label.write(c->tempo.label, DARK_GRAY, label_center_x, y);
 	// Screen background
-        SDL_Rect screen_bg = {c->start.r.x + c->start.r.w + pad, c->start.r.y, 200, size};
+        SDL_Rect screen_bg = {c->start.r.x + c->start.r.w + pad, c->start.r.y, 200, c->start.size};
         SDL_SetRenderDrawColor(this->r, SCREEN_BG.r, SCREEN_BG.g, SCREEN_BG.b, SCREEN_BG.a);
         SDL_RenderFillRect(this->r, &screen_bg);
         // Screen Text
@@ -124,7 +112,7 @@ void render::control(controller* c)
         screen.write(std::to_string(c->tempo.value), LED, screen_center_x, (screen_bg.y - 2));
         // faders
         // Fader background
-        int w = 186;
+        int w = 300;
         int fader_height = 10;
         int light_height = fader_height / 3;
         int cursor_width = 10;
@@ -175,6 +163,28 @@ void render::control(controller* c)
 	label.destroy();
 	screen.destroy();
 	return;
+}
+
+void render::but(const std::vector<button*>& b, int x, int y)
+{
+        text label(this->r, 18, BASIC);
+        for (int i = 0; i < b.size(); i++)
+        {
+	        int label_text_width = b[i]->label.size() * 18 * 0.5f; // Text width approximation
+                int label_center_x = x + (b[i]->size / 2) - (label_text_width / 2); // Center on x
+                label.write(b[i]->label, DARK_GRAY, label_center_x, y);
+	        b[i]->r = {x, y+30, b[i]->size, b[i]->size};
+                SDL_SetRenderDrawColor(this->r, B_SHADOW.r, B_SHADOW.g, B_SHADOW.b, B_SHADOW.a);
+                SDL_RenderFillRect(this->r, &b[i]->r);
+	        SDL_Rect button_fg = {x+7, b[i]->r.y + 5, b[i]->size - 15, b[i]->size - 15};
+                SDL_SetRenderDrawColor(this->r, B_LIGHT.r, B_LIGHT.g, B_LIGHT.b, B_LIGHT.a);
+                SDL_RenderFillRect(this->r, &button_fg);
+	        SDL_Rect button_led = {button_fg.x+7, button_fg.y + 5, b[i]->size - 30, 7};
+                SDL_SetRenderDrawColor(this->r, b[i]->state ? LED.r : BLUE_GRAY.r,
+	        b[i]->state ? LED.g : BLUE_GRAY.g, b[i]->state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
+                SDL_RenderFillRect(this->r, &button_led);
+        }
+        label.destroy();
 }
 
 void render::show(const std::vector<module*>& modules, controller* c)

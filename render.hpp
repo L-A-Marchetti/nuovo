@@ -32,6 +32,7 @@ class render
 		void background();
 		void modules(const std::vector<module*>& modules);
 		void control(controller* c);
+		void but(const std::vector<button*>& b, int x, int y);
 		void show(const std::vector<module*>& modules, controller* c);
 		SDL_Renderer* get_renderer();
 		void destroy();
