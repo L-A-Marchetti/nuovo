@@ -28,7 +28,9 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->c = new controller();
-	this->r.show(this->modules, this->c);
+	std::cout << "\t" << ++i << ". Controller created" << std::endl;
+	this->s = new sequencer();
+	this->r.show(this->modules, this->c, this->s);
 	this->is_running = true;
 	std::cout << "\t" << ++i << ". App is running" << std::endl;
 	return;
@@ -48,6 +50,10 @@ void app::run()
 		if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
 		if (SDL_PointInRect(&mouse, &this->c->tempo.fader_rect)) this->c->tempo.is_dragging = true;
 		if (SDL_PointInRect(&mouse, &this->c->volume.fader_rect)) this->c->volume.is_dragging = true;
+		for (int i = 0; i < this->s->buttons.size(); i++)
+		{
+			if (SDL_PointInRect(&mouse, &this->s->buttons[i].r)) this->s->buttons[i].state = !this->s->buttons[i].state;
+		}
                 for (size_t m = 0; m < this->modules.size(); ++m)
 				{
                     std::vector<knob>& knobs = this->modules[m]->get_knobs();
@@ -103,7 +109,7 @@ void app::run()
 			}
 
         }
-		this->r.show(this->modules, this->c);
+		this->r.show(this->modules, this->c, this->s);
     }
     std::cout << "Main loop finished" << std::endl;
 }
@@ -117,6 +123,7 @@ void app::quit()
 	SDL_DestroyWindow(this->win);
 	std::cout << "\t" << ++i << ". Window destroyed" << std::endl;
 	// Delete each module to free memory
+	delete this->s;
     	for (module* m : this->modules) {
         delete m;
     	}

@@ -21,6 +21,7 @@
 #include "text.hpp"
 #include "module.hpp"
 #include "controller.hpp"
+#include "sequencer.hpp"
 
 class render
 {
@@ -32,8 +33,9 @@ class render
 		void background();
 		void modules(const std::vector<module*>& modules);
 		void control(controller* c);
-		void but(const std::vector<button*>& b, int x, int y);
-		void show(const std::vector<module*>& modules, controller* c);
+		void but(const std::vector<button*>& b, int x, int y, int pad);
+		void seq(sequencer* s);
+		void show(const std::vector<module*>& modules, controller* c, sequencer* s);
 		SDL_Renderer* get_renderer();
 		void destroy();
 };

@@ -11,6 +11,7 @@
 
 #include "render.hpp"
 #include "controller.hpp"
+#include "sequencer.hpp"
 
 class app
 {
@@ -22,6 +23,7 @@ class app
 		render r;
 		std::vector<module*> modules;
 		controller* c;
+		sequencer* s;
 		bool is_running;
 	public:
 		app(std::string title, int w, int h);

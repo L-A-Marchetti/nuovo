@@ -91,19 +91,19 @@ void render::modules(const std::vector<module*>& modules)
 void render::control(controller* c)
 {
 	int x = 20;
-	int y = 500;
-	int pad = 20;
+	int y = 550;
+	int pad = 60;
 	text label(this->r, 18, BASIC);
 	text screen(this->r, 76, SCREEN);
         // Button
         std::vector<button*> b = {&c->start};
-        this->but(b, x, y);
+        this->but(b, x, y, pad);
 	// Tempo Label
 	int label_text_width = c->tempo.label.size() * 18 * 0.5f;
         int label_center_x = c->start.r.x + c->start.r.w + pad + (200 / 2) - (label_text_width / 2); // Center on x
         label.write(c->tempo.label, DARK_GRAY, label_center_x, y);
 	// Screen background
-        SDL_Rect screen_bg = {c->start.r.x + c->start.r.w + pad, c->start.r.y, 200, c->start.size};
+        SDL_Rect screen_bg = {c->start.r.x + c->start.r.w + pad, c->start.r.y + 15, 200, c->start.size-30};
         SDL_SetRenderDrawColor(this->r, SCREEN_BG.r, SCREEN_BG.g, SCREEN_BG.b, SCREEN_BG.a);
         SDL_RenderFillRect(this->r, &screen_bg);
         // Screen Text
@@ -165,29 +165,43 @@ void render::control(controller* c)
 	return;
 }
 
-void render::but(const std::vector<button*>& b, int x, int y)
+void render::but(const std::vector<button*>& b, int x, int y, int pad)
 {
-        text label(this->r, 18, BASIC);
-        for (int i = 0; i < b.size(); i++)
-        {
-	        int label_text_width = b[i]->label.size() * 18 * 0.5f; // Text width approximation
-                int label_center_x = x + (b[i]->size / 2) - (label_text_width / 2); // Center on x
-                label.write(b[i]->label, DARK_GRAY, label_center_x, y);
-	        b[i]->r = {x, y+30, b[i]->size, b[i]->size};
-                SDL_SetRenderDrawColor(this->r, B_SHADOW.r, B_SHADOW.g, B_SHADOW.b, B_SHADOW.a);
-                SDL_RenderFillRect(this->r, &b[i]->r);
-	        SDL_Rect button_fg = {x+7, b[i]->r.y + 5, b[i]->size - 15, b[i]->size - 15};
-                SDL_SetRenderDrawColor(this->r, B_LIGHT.r, B_LIGHT.g, B_LIGHT.b, B_LIGHT.a);
-                SDL_RenderFillRect(this->r, &button_fg);
-	        SDL_Rect button_led = {button_fg.x+7, button_fg.y + 5, b[i]->size - 30, 7};
-                SDL_SetRenderDrawColor(this->r, b[i]->state ? LED.r : BLUE_GRAY.r,
-	        b[i]->state ? LED.g : BLUE_GRAY.g, b[i]->state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
-                SDL_RenderFillRect(this->r, &button_led);
-        }
-        label.destroy();
+    text label(this->r, 18, BASIC);
+    int current_x = x;
+    for (int i = 0; i < b.size(); i++)
+    {
+        int label_text_width = b[i]->label.size() * 18 * 0.5f;
+        int label_center_x = current_x + (b[i]->size / 2) - (label_text_width / 2);
+        label.write(b[i]->label, DARK_GRAY, label_center_x, y);
+        b[i]->r = {current_x, y + 30, b[i]->size, b[i]->size};
+        SDL_SetRenderDrawColor(this->r, B_SHADOW.r, B_SHADOW.g, B_SHADOW.b, B_SHADOW.a);
+        SDL_RenderFillRect(this->r, &b[i]->r);
+        SDL_Rect button_fg = {current_x + 7, b[i]->r.y + 5, b[i]->size - 15, b[i]->size - 15};
+        SDL_SetRenderDrawColor(this->r, B_LIGHT.r, B_LIGHT.g, B_LIGHT.b, B_LIGHT.a);
+        SDL_RenderFillRect(this->r, &button_fg);
+        SDL_Rect button_led = {button_fg.x + 7, button_fg.y + 5, b[i]->size - 30, 7};
+        SDL_SetRenderDrawColor(this->r, b[i]->state ? LED.r : BLUE_GRAY.r,
+            b[i]->state ? LED.g : BLUE_GRAY.g, b[i]->state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
+        SDL_RenderFillRect(this->r, &button_led);
+        current_x += b[i]->size + pad;
+    }
+    label.destroy();
 }
 
-void render::show(const std::vector<module*>& modules, controller* c)
+
+void render::seq(sequencer* s)
+{
+	std::vector<button*> b;
+	for (int i = 0; i < s->buttons.size(); i++)
+	{
+		b.push_back(&s->buttons[i]);
+	}
+	this->but(b, 20, 750, 15);
+	return;
+}
+
+void render::show(const std::vector<module*>& modules, controller* c, sequencer* s)
 {
         this->background();
         text model(this->r, 76, TR_FONT);
@@ -196,6 +210,7 @@ void render::show(const std::vector<module*>& modules, controller* c)
         slogan.write("Rhythm Composer", BLUE_GRAY, 1150, 70);
         this->modules(modules);
 	this->control(c);
+	this->seq(s);
 	model.destroy();
 	slogan.destroy();
 	SDL_RenderPresent(this->r);
