@@ -10,7 +10,7 @@ typedef struct knob
 	std::string label;
 	int value;
 	SDL_Rect fader_rect;
-    SDL_Rect cursor_rect;
+    	SDL_Rect cursor_rect;
 	bool is_dragging = false;
 } knob;
 

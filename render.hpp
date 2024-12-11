@@ -8,6 +8,9 @@
 #define GRAY (SDL_Color){196, 200, 194, 255}
 #define DARK_ORANGE (SDL_Color){239, 125, 58, 255}
 #define DARK_GRAY (SDL_Color){90, 99, 107, 255}
+#define B_LIGHT (SDL_Color){237, 226, 195, 255}
+#define B_SHADOW (SDL_Color){184, 174, 145, 255}
+#define LED (SDL_Color){252, 0, 0, 255}
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -15,6 +18,7 @@
 
 #include "text.hpp"
 #include "module.hpp"
+#include "controller.hpp"
 
 class render
 {
@@ -25,7 +29,8 @@ class render
 		~render();
 		void background();
 		void modules(const std::vector<module*>& modules);
-		void show(const std::vector<module*>& modules);
+		void control(controller* c);
+		void show(const std::vector<module*>& modules, controller* c);
 		SDL_Renderer* get_renderer();
 		void destroy();
 };

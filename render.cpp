@@ -78,14 +78,39 @@ void render::modules(const std::vector<module*>& modules)
             // Knob label
             int knob_text_width = size(knobs[i].label) * 12 * 0.6f; // Facteur ajusté pour la largeur du texte
             int knob_center_x = x + (w / 2) - (knob_text_width / 2); // Centrage horizontal
-            knob_label.write(knobs[i].label, BLUE_GRAY, knob_center_x, y_position + cursor_height); // Position verticale ajustée
+            knob_label.write(knobs[i].label, DARK_GRAY, knob_center_x, y_position + cursor_height); // Position verticale ajustée
         }
     }
     knob_label.destroy();
     label.destroy();
 }
 
-void render::show(const std::vector<module*>& modules)
+void render::control(controller* c)
+{
+	int x = 20;
+	int y = 500;
+	int size = 70;
+	text label(this->r, 18, BASIC);
+	//BUTTON
+	int label_text_width = c->start.label.size() * 18 * 0.5f; // Text width approximation
+        int label_center_x = x + (size / 2) - (label_text_width / 2); // Center on x
+        label.write(c->start.label, DARK_GRAY, label_center_x, y);
+	c->start.r = {x, y+30, size, size};
+        SDL_SetRenderDrawColor(this->r, B_SHADOW.r, B_SHADOW.g, B_SHADOW.b, B_SHADOW.a);
+        SDL_RenderFillRect(this->r, &c->start.r);
+	SDL_Rect button_fg = {x+7, c->start.r.y + 5, size - 15, size - 15};
+        SDL_SetRenderDrawColor(this->r, B_LIGHT.r, B_LIGHT.g, B_LIGHT.b, B_LIGHT.a);
+        SDL_RenderFillRect(this->r, &button_fg);
+	SDL_Rect button_led = {button_fg.x+7, button_fg.y + 5, size - 30, 7};
+        SDL_SetRenderDrawColor(this->r, c->start.state ? LED.r : BLUE_GRAY.r,
+	c->start.state ? LED.g : BLUE_GRAY.g, c->start.state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
+        SDL_RenderFillRect(this->r, &button_led);
+	//
+	label.destroy();
+	return;
+}
+
+void render::show(const std::vector<module*>& modules, controller* c)
 {
         this->background();
         text model(this->r, 76, TR_FONT);
@@ -93,6 +118,7 @@ void render::show(const std::vector<module*>& modules)
         text slogan(this->r, 36, TR_FONT);
         slogan.write("Rhythm Composer", BLUE_GRAY, 1150, 70);
         this->modules(modules);
+	this->control(c);
 	model.destroy();
 	slogan.destroy();
 	SDL_RenderPresent(this->r);

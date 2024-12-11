@@ -1,7 +1,6 @@
 #include "app.hpp"
 
-app::app(std::string title, int w, int h)
-: title(title), w(w), h(h), r(nullptr)
+app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 {
 	int i = 0;
 	std::cout << "App init sequence:" << std::endl;
@@ -11,9 +10,7 @@ app::app(std::string title, int w, int h)
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". SDL initialized" << std::endl;
-	this->win =
-	SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
-	SDL_WINDOWPOS_CENTERED, w, h, 0);
+	this->win = SDL_CreateWindow(title.c_str(), WIN_C, WIN_C, w, h, 0);
 	if (this->win == nullptr)
 	{
 		std::cerr << SDL_GetError() << std::endl;
@@ -30,7 +27,8 @@ app::app(std::string title, int w, int h)
 	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}));
 	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
-	this->r.show(this->modules);
+	this->c = new controller();
+	this->r.show(this->modules, this->c);
 	this->is_running = true;
 	std::cout << "\t" << ++i << ". App is running" << std::endl;
 	return;
@@ -47,6 +45,7 @@ void app::run()
             else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
 			{
                 SDL_Point mouse = {e.button.x, e.button.y};
+		if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
                 for (size_t m = 0; m < this->modules.size(); ++m)
 				{
                     std::vector<knob>& knobs = this->modules[m]->get_knobs();
@@ -84,7 +83,7 @@ void app::run()
 			}
 
         }
-		this->r.show(this->modules);
+		this->r.show(this->modules, this->c);
     }
     std::cout << "Main loop finished" << std::endl;
 }
@@ -98,10 +97,11 @@ void app::quit()
 	SDL_DestroyWindow(this->win);
 	std::cout << "\t" << ++i << ". Window destroyed" << std::endl;
 	// Delete each module to free memory
-    for (module* m : this->modules) {
+    	for (module* m : this->modules) {
         delete m;
-    }
-    this->modules.clear();
+    	}
+    	this->modules.clear();
+	delete this->c;
 	std::cout << "\t" << ++i << ". Dynamic allocation freed" << std::endl;
 	SDL_Quit();
 	std::cout << "\t" << ++i << ". SDL quit" << std::endl;
