@@ -90,7 +90,9 @@ void render::control(controller* c)
 	int x = 20;
 	int y = 500;
 	int size = 70;
+	int pad = 20;
 	text label(this->r, 18, BASIC);
+	text screen(this->r, 76, SCREEN);
 	//BUTTON
 	int label_text_width = c->start.label.size() * 18 * 0.5f; // Text width approximation
         int label_center_x = x + (size / 2) - (label_text_width / 2); // Center on x
@@ -106,7 +108,19 @@ void render::control(controller* c)
 	c->start.state ? LED.g : BLUE_GRAY.g, c->start.state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
         SDL_RenderFillRect(this->r, &button_led);
 	//
+	label_text_width = c->tempo.label.size() * 18 * 0.5f;
+        label_center_x = c->start.r.x + c->start.r.w + pad + (200 / 2) - (label_text_width / 2); // Center on x
+        label.write(c->tempo.label, DARK_GRAY, label_center_x, y);
+	// Screen background
+        SDL_Rect screen_bg = {c->start.r.x + c->start.r.w + pad, c->start.r.y, 200, size};
+        SDL_SetRenderDrawColor(this->r, SCREEN_BG.r, SCREEN_BG.g, SCREEN_BG.b, SCREEN_BG.a);
+        SDL_RenderFillRect(this->r, &screen_bg);
+        // Screen Text
+        int screen_text_width = std::to_string(c->tempo.value).size() * 76 * 0.4f; // Text width approximation
+        int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
+        screen.write(std::to_string(c->tempo.value), LED, screen_center_x, (screen_bg.y - 3));
 	label.destroy();
+	screen.destroy();
 	return;
 }
 

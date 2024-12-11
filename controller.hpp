@@ -14,11 +14,10 @@ typedef struct button
 class controller
 {
 	private:
-		SDL_Rect screen;
-		knob tempo = {"TEMPO", 120};
 		knob volume = {"VOLUME", 64};
 	public:
 		button start = {.label="START"};
+		knob tempo = {"TEMPO", 120};
 		controller();
 		~controller();
 };
