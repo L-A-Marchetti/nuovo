@@ -46,6 +46,8 @@ void app::run()
 			{
                 SDL_Point mouse = {e.button.x, e.button.y};
 		if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
+		if (SDL_PointInRect(&mouse, &this->c->tempo.fader_rect)) this->c->tempo.is_dragging = true;
+		if (SDL_PointInRect(&mouse, &this->c->volume.fader_rect)) this->c->volume.is_dragging = true;
                 for (size_t m = 0; m < this->modules.size(); ++m)
 				{
                     std::vector<knob>& knobs = this->modules[m]->get_knobs();
@@ -57,6 +59,8 @@ void app::run()
             }
             else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
 			{
+				this->c->tempo.is_dragging = false;
+				this->c->volume.is_dragging = false;
                 for (size_t m = 0; m < this->modules.size(); ++m)
 				{
                     std::vector<knob>& knobs = this->modules[m]->get_knobs();
@@ -65,6 +69,22 @@ void app::run()
             }
             else if (e.type == SDL_MOUSEMOTION)
 			{
+				if (this->c->tempo.is_dragging)
+				{
+					int mouse_x = e.motion.x;
+    			    int knob_x = this->c->tempo.fader_rect.x;
+    			    int fader_width = this->c->tempo.fader_rect.w;
+    			    int new_value = std::clamp(mouse_x - knob_x, 0, fader_width);
+    			    this->c->tempo.value = (new_value * 300) / fader_width;
+				}
+				if (this->c->volume.is_dragging)
+				{
+					int mouse_x = e.motion.x;
+    			    int knob_x = this->c->volume.fader_rect.x;
+    			    int fader_width = this->c->volume.fader_rect.w;
+    			    int new_value = std::clamp(mouse_x - knob_x, 0, fader_width);
+    			    this->c->volume.value = (new_value * 127) / fader_width;
+				}
     			for (size_t m = 0; m < this->modules.size(); ++m)
 				{
     			    std::vector<knob>& knobs = this->modules[m]->get_knobs();

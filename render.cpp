@@ -64,21 +64,24 @@ void render::modules(const std::vector<module*>& modules)
             int y_position = y + h + (i + 1) * y_padding + i * (fader_height + cursor_height);
             // Fader background
             knobs[i].fader_rect = {x, y_position, w, fader_height};
-            SDL_SetRenderDrawColor(this->r, DARK_GRAY.r, DARK_GRAY.g, DARK_GRAY.b, DARK_GRAY.a);
+            SDL_SetRenderDrawColor(this->r, DARK_GRAY.r, DARK_GRAY.g, DARK_GRAY.b, 255);
             SDL_RenderFillRect(this->r, &knobs[i].fader_rect);
             float normalized_value = knobs[i].value / 127.0f;
             // Fader light
-            SDL_Rect fader_light = {x + 2, y_position + 3, static_cast<int>(normalized_value * (w - 4)), light_height};
-            SDL_SetRenderDrawColor(this->r, DARK_ORANGE.r, DARK_ORANGE.g, DARK_ORANGE.b, DARK_ORANGE.a);
+            SDL_Rect fader_light = {x + 2, y_position + 3,
+	    static_cast<int>(normalized_value * (w - 4)), light_height};
+            SDL_SetRenderDrawColor(this->r, DARK_ORANGE.r, DARK_ORANGE.g, DARK_ORANGE.b, 255);
             SDL_RenderFillRect(this->r, &fader_light);
             // Fader cursor
-            knobs[i].cursor_rect = {x + static_cast<int>(normalized_value * w) - cursor_width / 2, y_position - 5, cursor_width, cursor_height};
-            SDL_SetRenderDrawColor(this->r, BLUE_GRAY.r, BLUE_GRAY.g, BLUE_GRAY.b, BLUE_GRAY.a);
+            knobs[i].cursor_rect = {x + static_cast<int>(normalized_value * w)
+	    - cursor_width / 2, y_position - 5, cursor_width, cursor_height};
+            SDL_SetRenderDrawColor(this->r, BLUE_GRAY.r, BLUE_GRAY.g, BLUE_GRAY.b, 255);
             SDL_RenderFillRect(this->r, &knobs[i].cursor_rect);
             // Knob label
             int knob_text_width = size(knobs[i].label) * 12 * 0.6f; // Facteur ajusté pour la largeur du texte
             int knob_center_x = x + (w / 2) - (knob_text_width / 2); // Centrage horizontal
-            knob_label.write(knobs[i].label, DARK_GRAY, knob_center_x, y_position + cursor_height); // Position verticale ajustée
+            knob_label.write(knobs[i].label, DARK_GRAY, knob_center_x,
+	    y_position + cursor_height); // Position verticale ajustée
         }
     }
     knob_label.destroy();
@@ -107,7 +110,7 @@ void render::control(controller* c)
         SDL_SetRenderDrawColor(this->r, c->start.state ? LED.r : BLUE_GRAY.r,
 	c->start.state ? LED.g : BLUE_GRAY.g, c->start.state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
         SDL_RenderFillRect(this->r, &button_led);
-	//
+	// Tempo Label
 	label_text_width = c->tempo.label.size() * 18 * 0.5f;
         label_center_x = c->start.r.x + c->start.r.w + pad + (200 / 2) - (label_text_width / 2); // Center on x
         label.write(c->tempo.label, DARK_GRAY, label_center_x, y);
@@ -116,9 +119,59 @@ void render::control(controller* c)
         SDL_SetRenderDrawColor(this->r, SCREEN_BG.r, SCREEN_BG.g, SCREEN_BG.b, SCREEN_BG.a);
         SDL_RenderFillRect(this->r, &screen_bg);
         // Screen Text
-        int screen_text_width = std::to_string(c->tempo.value).size() * 76 * 0.4f; // Text width approximation
+        int screen_text_width = std::to_string(c->tempo.value).size() * 76 * .52f; // Text width approximation
         int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
-        screen.write(std::to_string(c->tempo.value), LED, screen_center_x, (screen_bg.y - 3));
+        screen.write(std::to_string(c->tempo.value), LED, screen_center_x, (screen_bg.y - 2));
+        // faders
+        // Fader background
+        int w = 186;
+        int fader_height = 10;
+        int light_height = fader_height / 3;
+        int cursor_width = 10;
+        int cursor_height = 20;
+        int y_pad = 60;
+        text knob_label(this->r, 12, BASIC);
+        //TEMPO
+        c->tempo.fader_rect = {screen_bg.x + screen_bg.w + pad, screen_bg.y, w, fader_height};
+        SDL_SetRenderDrawColor(this->r, DARK_GRAY.r, DARK_GRAY.g, DARK_GRAY.b, 255);
+        SDL_RenderFillRect(this->r, &c->tempo.fader_rect);
+        float normalized_value = c->tempo.value / 300.0f;
+        // Fader light
+        SDL_Rect fader_light = {screen_bg.x + screen_bg.w + pad + 2, screen_bg.y + 3,
+	static_cast<int>(normalized_value * (w - 4)), light_height};
+        SDL_SetRenderDrawColor(this->r, DARK_ORANGE.r, DARK_ORANGE.g, DARK_ORANGE.b, 255);
+        SDL_RenderFillRect(this->r, &fader_light);
+        // Fader cursor
+        c->tempo.cursor_rect = {screen_bg.x + screen_bg.w + pad + static_cast<int>(normalized_value * w)
+	- cursor_width / 2, screen_bg.y - 5, cursor_width, cursor_height};
+        SDL_SetRenderDrawColor(this->r, BLUE_GRAY.r, BLUE_GRAY.g, BLUE_GRAY.b, 255);
+        SDL_RenderFillRect(this->r, &c->tempo.cursor_rect);
+        // Knob label
+        int knob_text_width = c->tempo.label.size() * 12 * 0.6f; // Facteur ajusté pour la largeur du texte
+        int knob_center_x = screen_bg.x + screen_bg.w + pad + (w / 2) - (knob_text_width / 2); // Centrage horizontal
+        knob_label.write(c->tempo.label, DARK_GRAY, knob_center_x,
+	screen_bg.y + cursor_height); // Position verticale ajustée
+        //VOLUME
+        c->volume.fader_rect = {screen_bg.x + screen_bg.w + pad, screen_bg.y + y_pad, w, fader_height};
+        SDL_SetRenderDrawColor(this->r, DARK_GRAY.r, DARK_GRAY.g, DARK_GRAY.b, 255);
+        SDL_RenderFillRect(this->r, &c->volume.fader_rect);
+        normalized_value = c->volume.value / 127.0f;
+        // Fader light
+        fader_light = {screen_bg.x + screen_bg.w + pad + 2, screen_bg.y + y_pad + 3,
+	static_cast<int>(normalized_value * (w - 4)), light_height};
+        SDL_SetRenderDrawColor(this->r, DARK_ORANGE.r, DARK_ORANGE.g, DARK_ORANGE.b, 255);
+        SDL_RenderFillRect(this->r, &fader_light);
+        // Fader cursor
+        c->volume.cursor_rect = {screen_bg.x + screen_bg.w + pad + static_cast<int>(normalized_value * w)
+	- cursor_width / 2, screen_bg.y + y_pad - 5, cursor_width, cursor_height};
+        SDL_SetRenderDrawColor(this->r, BLUE_GRAY.r, BLUE_GRAY.g, BLUE_GRAY.b, 255);
+        SDL_RenderFillRect(this->r, &c->volume.cursor_rect);
+        // Knob label
+        knob_text_width = c->volume.label.size() * 12 * 0.6f; // Facteur ajusté pour la largeur du texte
+        knob_center_x = screen_bg.x + screen_bg.w + pad + (w / 2) - (knob_text_width / 2); // Centrage horizontal
+        knob_label.write(c->volume.label, DARK_GRAY, knob_center_x,
+	screen_bg.y + y_pad + cursor_height); // Position verticale ajustée
+        knob_label.destroy();
 	label.destroy();
 	screen.destroy();
 	return;
