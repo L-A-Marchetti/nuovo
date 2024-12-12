@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -21,10 +22,12 @@ class module
 		std::string label;
 		std::vector<knob> knobs;
 	public:
-		module(std::string label, std::vector<knob> knobs);
+		module(std::string label, std::vector<knob> knobs, std::string file);
 		~module();
 		std::string get_label();
 		std::vector<knob>& get_knobs();
+		Mix_Chunk* sample;
+		void play();
 };
 
 #endif //MODULE_HPP

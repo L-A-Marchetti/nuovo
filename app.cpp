@@ -16,8 +16,6 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". Audio initialized" << std::endl;
-	this->kick = Mix_LoadWAV("kick.wav");
-	if (this->kick == nullptr) {std::cerr << Mix_GetError() << std::endl;}
 	this->win = SDL_CreateWindow(title.c_str(), WIN_C, WIN_C, w, h, 0);
 	if (this->win == nullptr)
 	{
@@ -26,14 +24,14 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	}
 	else std::cout << "\t" << ++i << ". Window created" << std::endl;
 	this->r = render(this->win);
-	this->modules.push_back(new module("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}}));
-	this->modules.push_back(new module("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}}));
-	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}));
-	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}));
-	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}));
-	this->modules.push_back(new module("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}}));
-	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}));
-	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}));
+	this->modules.push_back(new module("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}}, "kick.wav"));
+	this->modules.push_back(new module("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}}, ""));
+	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}, ""));
+	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}, ""));
+	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}, ""));
+	this->modules.push_back(new module("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}}, ""));
+	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}, ""));
+	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}, ""));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->c = new controller();
 	std::cout << "\t" << ++i << ". Controller created" << std::endl;
@@ -119,7 +117,7 @@ void app::run()
 
         }
 		this->r.show(this->modules, this->c, this->s);
-		//SDL_Delay(15);
+		SDL_Delay(15);
     }
     std::cout << "Main loop finished" << std::endl;
 }
@@ -135,14 +133,13 @@ void app::bpm_worker()
         	std::this_thread::sleep_for(milliseconds(interval_ms));
 		if (this->s->buttons[i%16].state)
 		{
-			if (Mix_PlayChannel(1, this->kick, 0) == -1) puts(Mix_GetError());
+			std::thread(&module::play, this->modules[0]).detach();
 		}
 		this->s->buttons[i%16].state = !this->s->buttons[i%16].state;
 		if (i != 0) this->s->buttons[(i - 1 + 16) % 16].state = !this->s->buttons[(i - 1 + 16) % 16].state;
 		i++;
     }
 }
-
 
 void app::quit()
 {
@@ -152,18 +149,18 @@ void app::quit()
         if (bpm_thread.joinable()) bpm_thread.join();
 	std::cout << "\t" << ++i << ". Tempo thread joined" << std::endl;
 	this->r.destroy();
-	Mix_FreeChunk(this->kick);
-	std::cout << "\t" << ++i << ". Audio chunks freed" << std::endl;
+	for (module* m : this->modules)
+	{
+    	delete m;
+    }
+    this->modules.clear();
+	std::cout << "\t" << ++i << ". Modules freed" << std::endl;
 	Mix_CloseAudio();
 	std::cout << "\t" << ++i << ". Audio device closed" << std::endl;
 	SDL_DestroyWindow(this->win);
 	std::cout << "\t" << ++i << ". Window destroyed" << std::endl;
 	// Delete each module to free memory
 	delete this->s;
-    	for (module* m : this->modules) {
-        delete m;
-    	}
-    	this->modules.clear();
 	delete this->c;
 	std::cout << "\t" << ++i << ". Dynamic allocation freed" << std::endl;
 	SDL_Quit();
