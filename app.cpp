@@ -10,12 +10,13 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". SDL initialized" << std::endl;
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 8, 1024) == -1)
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1)
 	{
 		std::cerr << Mix_GetError() << std::endl;
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". Audio initialized" << std::endl;
+	Mix_AllocateChannels(16);
 	this->win = SDL_CreateWindow(title.c_str(), WIN_C, WIN_C, w, h, 0);
 	if (this->win == nullptr)
 	{
@@ -32,8 +33,10 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}, "high_tom.wav", ++chans));
 	this->modules.push_back(new module("RIM SHOT", {{"LEVEL", 95}}, "rim_shot.wav", ++chans));
 	this->modules.push_back(new module("HAND CLAP", {{"LEVEL", 95}}, "hand_clap.wav", ++chans));
-	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}, "", ++chans));
-	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}, "", ++chans));
+	this->modules.push_back(new module("CLOSED HAT", {{"LEVEL", 80}, {"CH DECAY", 65}}, "closed_hat.wav", ++chans));
+	this->modules.push_back(new module("OPEN HAT", {{"LEVEL", 80}, {"OH DECAY", 70}}, "open_hat.wav", chans));
+	this->modules.push_back(new module("CRASH", {{"LEVEL", 90}, {"DECAY", 80}, {"TUNE", 50}}, "crash.wav", ++chans));
+	this->modules.push_back(new module("RIDE", {{"LEVEL", 90}, {"DECAY", 80}, {"TUNE", 50}}, "ride.wav", ++chans));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->c = new controller();
 	std::cout << "\t" << ++i << ". Controller created" << std::endl;

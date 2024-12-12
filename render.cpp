@@ -44,10 +44,10 @@ void render::modules(const std::vector<module*>& modules)
     {
         int x = 0;
         module* m = modules[m_index];
-        if (m->get_label() == "HAND CLAP")
+        if (m->get_label() == "HAND CLAP" || m->get_label() == "CLOSED HAT" || m->get_label() == "RIDE")
         {
-                x = x_start + (m_index-1) * (w + module_spacing);
-                y = 275;
+                x = x_start + (m_index-(m->get_label() == "RIDE" ? 3 : 1)) * (w + module_spacing);
+                y = m->get_label() == "HAND CLAP" ? 270 : m->get_label() == "RIDE" ? 390 : 330;
                 jumped++;
         }
         else
