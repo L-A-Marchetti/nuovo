@@ -27,10 +27,11 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	int chans = 0;
 	this->modules.push_back(new module("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}}, "kick.wav", ++chans));
 	this->modules.push_back(new module("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}}, "snare.wav", ++chans));
-	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}, "", ++chans));
-	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}, "", ++chans));
-	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}, "", ++chans));
-	this->modules.push_back(new module("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}}, "", ++chans));
+	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}, "low_tom.wav", ++chans));
+	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}, "mid_tom.wav", ++chans));
+	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}, "high_tom.wav", ++chans));
+	this->modules.push_back(new module("RIM SHOT", {{"LEVEL", 95}}, "rim_shot.wav", ++chans));
+	this->modules.push_back(new module("HAND CLAP", {{"LEVEL", 95}}, "hand_clap.wav", ++chans));
 	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}, "", ++chans));
 	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}, "", ++chans));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;

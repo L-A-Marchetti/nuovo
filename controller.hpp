@@ -8,7 +8,7 @@ class controller
 {
 	public:
 		button start = {.label="START", .size=100, .state=true};
-		knob tempo = {"TEMPO", 120};
+		knob tempo = {"TEMPO", 129};
 		knob volume = {"VOLUME", 64};
 		controller();
 		~controller();

@@ -37,12 +37,24 @@ void render::modules(const std::vector<module*>& modules)
     int h = 35;       // Labels height
     int w = 186;      // Modules width
     int module_spacing = 10; // Modules x padding
+    int jumped = 0;
     text label(this->r, 18, BASIC);
     text knob_label(this->r, 12, BASIC);
     for (size_t m_index = 0; m_index < modules.size(); m_index++)
     {
+        int x = 0;
         module* m = modules[m_index];
-        int x = x_start + m_index * (w + module_spacing); // Calculated x pos
+        if (m->get_label() == "HAND CLAP")
+        {
+                x = x_start + (m_index-1) * (w + module_spacing);
+                y = 275;
+                jumped++;
+        }
+        else
+        {
+                x = x_start + (m_index-jumped) * (w + module_spacing); // Calculated x pos
+                y = 150;
+        }
         // Label Background
         SDL_Rect label_bg = {x, y, w, h};
         SDL_SetRenderDrawColor(this->r, BLUE_GRAY.r, BLUE_GRAY.g, BLUE_GRAY.b, BLUE_GRAY.a);
