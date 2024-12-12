@@ -136,20 +136,20 @@ void app::bpm_worker()
     	using namespace std::chrono;
     	int ticks_per_beat = 4;
     	while (this->c->start.state)
-	{
-		int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
-        	std::this_thread::sleep_for(milliseconds(interval_ms));
-		for (int m = 0; m < this->modules.size(); m++)
 		{
-			if (this->modules[m]->s->buttons[i%16].state)
+			int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
+    	    	std::this_thread::sleep_for(milliseconds(interval_ms));
+			for (int m = 0; m < this->modules.size(); m++)
 			{
-				std::thread(&module::play, this->modules[m]).detach();
+				if (this->modules[m]->s->buttons[i%16].state)
+				{
+					std::thread(&module::play, this->modules[m]).detach();
+				}
 			}
-		}
-		//this->modules[seq_disp]->s->buttons[i%16].state = !this->modules[seq_disp]->s->buttons[i%16].state;
-		//if (i != 0) this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state;
-		i++;
-    }
+			//this->modules[seq_disp]->s->buttons[i%16].state = !this->modules[seq_disp]->s->buttons[i%16].state;
+			//if (i != 0) this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state;
+			i++;
+    	}
 }
 
 void app::quit()
