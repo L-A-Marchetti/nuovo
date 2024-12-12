@@ -10,6 +10,14 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". SDL initialized" << std::endl;
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) == -1)
+	{
+		std::cerr << Mix_GetError() << std::endl;
+		exit(1);
+	}
+	else std::cout << "\t" << ++i << ". Audio initialized" << std::endl;
+	this->kick = Mix_LoadWAV("kick.wav");
+	if (this->kick == nullptr) {std::cerr << Mix_GetError() << std::endl;}
 	this->win = SDL_CreateWindow(title.c_str(), WIN_C, WIN_C, w, h, 0);
 	if (this->win == nullptr)
 	{
@@ -111,18 +119,24 @@ void app::run()
 
         }
 		this->r.show(this->modules, this->c, this->s);
+		//SDL_Delay(15);
     }
     std::cout << "Main loop finished" << std::endl;
 }
 
-void app::bpm_worker() {
+void app::bpm_worker()
+{
 	int i = 0;
-    using namespace std::chrono;
-    int ticks_per_beat = 4;
-    while (this->c->start.state)
+    	using namespace std::chrono;
+    	int ticks_per_beat = 4;
+    	while (this->c->start.state)
 	{
 		int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
-        std::this_thread::sleep_for(milliseconds(interval_ms));
+        	std::this_thread::sleep_for(milliseconds(interval_ms));
+		if (this->s->buttons[i%16].state)
+		{
+			if (Mix_PlayChannel(1, this->kick, 0) == -1) puts(Mix_GetError());
+		}
 		this->s->buttons[i%16].state = !this->s->buttons[i%16].state;
 		if (i != 0) this->s->buttons[(i - 1 + 16) % 16].state = !this->s->buttons[(i - 1 + 16) % 16].state;
 		i++;
@@ -133,14 +147,15 @@ void app::bpm_worker() {
 void app::quit()
 {
 	int i = 0;
-	// test
-	this->c->start.state = false;
-	if (bpm_thread.joinable()) {
-	    bpm_thread.join();
-	}
-	//
 	std::cout << "App quit sequence" << std::endl;
+	this->c->start.state = false;
+        if (bpm_thread.joinable()) bpm_thread.join();
+	std::cout << "\t" << ++i << ". Tempo thread joined" << std::endl;
 	this->r.destroy();
+	Mix_FreeChunk(this->kick);
+	std::cout << "\t" << ++i << ". Audio chunks freed" << std::endl;
+	Mix_CloseAudio();
+	std::cout << "\t" << ++i << ". Audio device closed" << std::endl;
 	SDL_DestroyWindow(this->win);
 	std::cout << "\t" << ++i << ". Window destroyed" << std::endl;
 	// Delete each module to free memory

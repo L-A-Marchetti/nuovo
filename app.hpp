@@ -28,9 +28,10 @@ class app
 		controller* c;
 		sequencer* s;
 		bool is_running;
-		//test
 		std::thread bpm_thread;
 		void bpm_worker();
+		// audio test
+		Mix_Chunk* kick;
 		//
 	public:
 		app(std::string title, int w, int h);
