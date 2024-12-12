@@ -10,7 +10,7 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". SDL initialized" << std::endl;
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 1024) == -1)
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 8, 1024) == -1)
 	{
 		std::cerr << Mix_GetError() << std::endl;
 		exit(1);
@@ -24,14 +24,15 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	}
 	else std::cout << "\t" << ++i << ". Window created" << std::endl;
 	this->r = render(this->win);
-	this->modules.push_back(new module("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}}, "kick.wav"));
-	this->modules.push_back(new module("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}}, ""));
-	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}, ""));
-	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}, ""));
-	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}, ""));
-	this->modules.push_back(new module("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}}, ""));
-	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}, ""));
-	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}, ""));
+	int chans = 0;
+	this->modules.push_back(new module("BASS DRUM", {{"TUNE", 32}, {"LEVEL", 90}, {"ATTACK", 45}, {"DECAY", 100}}, "kick.wav", ++chans));
+	this->modules.push_back(new module("SNARE DRUM", {{"TUNE", 20}, {"LEVEL", 85}, {"TONE", 50}, {"SNAPPY", 75}}, "snare.wav", ++chans));
+	this->modules.push_back(new module("LOW TOM", {{"TUNE", 40}, {"LEVEL", 80}, {"DECAY", 60}}, "", ++chans));
+	this->modules.push_back(new module("MID TOM", {{"TUNE", 35}, {"LEVEL", 75}, {"DECAY", 70}}, "", ++chans));
+	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 90}, {"DECAY", 55}}, "", ++chans));
+	this->modules.push_back(new module("RIM SHOT HAND CLAP", {{"LEVEL", 95}, {"LEVEL", 100}}, "", ++chans));
+	this->modules.push_back(new module("HI HAT", {{"LEVEL", 80}, {"CH DECAY", 65}, {"OH DECAY", 70}}, "", ++chans));
+	this->modules.push_back(new module("CYMBAL", {{"LEVEL", 90}, {"LEVEL", 100}, {"DECAY", 80}, {"CRASH TUNE", 50}, {"RIDE TUNE", 60}}, "", ++chans));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->c = new controller();
 	std::cout << "\t" << ++i << ". Controller created" << std::endl;
@@ -53,13 +54,21 @@ void app::run()
             else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
 			{
                 SDL_Point mouse = {e.button.x, e.button.y};
-		if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
-		if (SDL_PointInRect(&mouse, &this->c->tempo.fader_rect)) this->c->tempo.is_dragging = true;
-		if (SDL_PointInRect(&mouse, &this->c->volume.fader_rect)) this->c->volume.is_dragging = true;
-		for (int i = 0; i < this->modules[0]->s->buttons.size(); i++)
-		{
-			if (SDL_PointInRect(&mouse, &this->modules[0]->s->buttons[i].r)) this->modules[0]->s->buttons[i].state = !this->modules[0]->s->buttons[i].state;
-		}
+				const Uint8* keystates = SDL_GetKeyboardState(nullptr);
+                if (keystates[SDL_SCANCODE_LCTRL] || keystates[SDL_SCANCODE_RCTRL]) {
+                    for (int i = 0; i < this->modules[0]->s->buttons.size(); i++)
+					{
+						if (SDL_PointInRect(&mouse, &this->modules[0]->s->buttons[i].r)) this->seq_disp = i;
+					}
+					continue;
+                }
+				if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
+				if (SDL_PointInRect(&mouse, &this->c->tempo.fader_rect)) this->c->tempo.is_dragging = true;
+				if (SDL_PointInRect(&mouse, &this->c->volume.fader_rect)) this->c->volume.is_dragging = true;
+				for (int i = 0; i < this->modules[seq_disp]->s->buttons.size(); i++)
+				{
+					if (SDL_PointInRect(&mouse, &this->modules[seq_disp]->s->buttons[i].r)) this->modules[seq_disp]->s->buttons[i].state = !this->modules[seq_disp]->s->buttons[i].state;
+				}
                 for (size_t m = 0; m < this->modules.size(); ++m)
 				{
                     std::vector<knob>& knobs = this->modules[m]->get_knobs();
@@ -130,12 +139,15 @@ void app::bpm_worker()
 	{
 		int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
         	std::this_thread::sleep_for(milliseconds(interval_ms));
-		if (this->modules[0]->s->buttons[i%16].state)
+		for (int m = 0; m < this->modules.size(); m++)
 		{
-			std::thread(&module::play, this->modules[0]).detach();
+			if (this->modules[m]->s->buttons[i%16].state)
+			{
+				std::thread(&module::play, this->modules[m]).detach();
+			}
 		}
-		this->modules[0]->s->buttons[i%16].state = !this->modules[0]->s->buttons[i%16].state;
-		if (i != 0) this->modules[0]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[0]->s->buttons[(i - 1 + 16) % 16].state;
+		//this->modules[seq_disp]->s->buttons[i%16].state = !this->modules[seq_disp]->s->buttons[i%16].state;
+		//if (i != 0) this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state;
 		i++;
     }
 }

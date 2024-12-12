@@ -14,8 +14,9 @@ class module
 	private:
 		std::string label;
 		std::vector<knob> knobs;
+		int chan;
 	public:
-		module(std::string label, std::vector<knob> knobs, std::string file);
+		module(std::string label, std::vector<knob> knobs, std::string file, int chan);
 		~module();
 		std::string get_label();
 		std::vector<knob>& get_knobs();

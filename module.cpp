@@ -1,7 +1,7 @@
 #include "module.hpp"
 
-module::module(std::string label, std::vector<knob> knobs, std::string file)
-: label(label), knobs(knobs)
+module::module(std::string label, std::vector<knob> knobs, std::string file, int chan)
+: label(label), knobs(knobs), chan(chan)
 {
 	if (file != "")
 	{
@@ -26,6 +26,6 @@ std::vector<knob>& module::get_knobs() { return this->knobs; }
 
 void module::play()
 {
-	if (Mix_PlayChannel(1, this->sample, 0) == -1) puts(Mix_GetError());
+	if (Mix_PlayChannel(this->chan, this->sample, 0) == -1) puts(Mix_GetError());
 	return;
 }
