@@ -26,10 +26,10 @@ class app
 		render r;
 		std::vector<module*> modules;
 		controller* c;
-		sequencer* s;
 		bool is_running;
 		std::thread bpm_thread;
 		void bpm_worker();
+		int seq_disp = 0;
 	public:
 		app(std::string title, int w, int h);
 		~app();

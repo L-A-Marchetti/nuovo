@@ -2,15 +2,7 @@
 #define CONTROLLER_HPP
 
 #include <SDL2/SDL.h>
-#include "module.hpp"
-
-typedef struct button
-{
-	std::string label;
-	int size;
-	SDL_Rect r;
-	bool state = false;
-} button;
+#include "models.hpp"
 
 class controller
 {

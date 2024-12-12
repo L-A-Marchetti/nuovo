@@ -1,7 +1,9 @@
 #ifndef SEQUENCER_HPP
 #define SEQUENCER_HPP
 
-#include "controller.hpp"
+#include <vector>
+
+#include "models.hpp"
 
 class sequencer
 {

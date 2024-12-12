@@ -201,7 +201,7 @@ void render::seq(sequencer* s)
 	return;
 }
 
-void render::show(const std::vector<module*>& modules, controller* c, sequencer* s)
+void render::show(const std::vector<module*>& modules, controller* c, int seq_disp)
 {
         this->background();
         text model(this->r, 76, TR_FONT);
@@ -210,7 +210,7 @@ void render::show(const std::vector<module*>& modules, controller* c, sequencer*
         slogan.write("Rhythm Composer", BLUE_GRAY, 1150, 70);
         this->modules(modules);
 	this->control(c);
-	this->seq(s);
+	this->seq(modules[seq_disp]->s);
 	model.destroy();
 	slogan.destroy();
 	SDL_RenderPresent(this->r);

@@ -4,17 +4,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <iostream>
-#include <string>
 #include <vector>
 
-typedef struct knob
-{
-	std::string label;
-	int value;
-	SDL_Rect fader_rect;
-    	SDL_Rect cursor_rect;
-	bool is_dragging = false;
-} knob;
+#include "models.hpp"
+#include "sequencer.hpp"
 
 class module
 {
@@ -27,6 +20,7 @@ class module
 		std::string get_label();
 		std::vector<knob>& get_knobs();
 		Mix_Chunk* sample;
+		sequencer* s;
 		void play();
 };
 

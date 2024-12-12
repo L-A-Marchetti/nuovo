@@ -9,12 +9,14 @@ module::module(std::string label, std::vector<knob> knobs, std::string file)
 		if (this->sample == nullptr) {std::cerr << Mix_GetError() << std::endl;}
 	}
 	else this->sample = nullptr;
+	this->s = new sequencer();
 	return;
 }
 
 module::~module()
 {
 	if (this->sample != nullptr) Mix_FreeChunk(this->sample);
+	delete this->s;
 	return;
 }
 

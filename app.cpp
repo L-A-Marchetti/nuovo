@@ -10,7 +10,7 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 		exit(1);
 	}
 	else std::cout << "\t" << ++i << ". SDL initialized" << std::endl;
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) == -1)
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 1024) == -1)
 	{
 		std::cerr << Mix_GetError() << std::endl;
 		exit(1);
@@ -35,9 +35,8 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->c = new controller();
 	std::cout << "\t" << ++i << ". Controller created" << std::endl;
-	this->s = new sequencer();
 	this->bpm_thread = std::thread(&app::bpm_worker, this);
-	this->r.show(this->modules, this->c, this->s);
+	this->r.show(this->modules, this->c, this->seq_disp);
 	this->is_running = true;
 	std::cout << "\t" << ++i << ". App is running" << std::endl;
 	return;
@@ -57,9 +56,9 @@ void app::run()
 		if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
 		if (SDL_PointInRect(&mouse, &this->c->tempo.fader_rect)) this->c->tempo.is_dragging = true;
 		if (SDL_PointInRect(&mouse, &this->c->volume.fader_rect)) this->c->volume.is_dragging = true;
-		for (int i = 0; i < this->s->buttons.size(); i++)
+		for (int i = 0; i < this->modules[0]->s->buttons.size(); i++)
 		{
-			if (SDL_PointInRect(&mouse, &this->s->buttons[i].r)) this->s->buttons[i].state = !this->s->buttons[i].state;
+			if (SDL_PointInRect(&mouse, &this->modules[0]->s->buttons[i].r)) this->modules[0]->s->buttons[i].state = !this->modules[0]->s->buttons[i].state;
 		}
                 for (size_t m = 0; m < this->modules.size(); ++m)
 				{
@@ -116,7 +115,7 @@ void app::run()
 			}
 
         }
-		this->r.show(this->modules, this->c, this->s);
+		this->r.show(this->modules, this->c, this->seq_disp);
 		SDL_Delay(15);
     }
     std::cout << "Main loop finished" << std::endl;
@@ -131,12 +130,12 @@ void app::bpm_worker()
 	{
 		int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
         	std::this_thread::sleep_for(milliseconds(interval_ms));
-		if (this->s->buttons[i%16].state)
+		if (this->modules[0]->s->buttons[i%16].state)
 		{
 			std::thread(&module::play, this->modules[0]).detach();
 		}
-		this->s->buttons[i%16].state = !this->s->buttons[i%16].state;
-		if (i != 0) this->s->buttons[(i - 1 + 16) % 16].state = !this->s->buttons[(i - 1 + 16) % 16].state;
+		this->modules[0]->s->buttons[i%16].state = !this->modules[0]->s->buttons[i%16].state;
+		if (i != 0) this->modules[0]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[0]->s->buttons[(i - 1 + 16) % 16].state;
 		i++;
     }
 }
@@ -160,7 +159,6 @@ void app::quit()
 	SDL_DestroyWindow(this->win);
 	std::cout << "\t" << ++i << ". Window destroyed" << std::endl;
 	// Delete each module to free memory
-	delete this->s;
 	delete this->c;
 	std::cout << "\t" << ++i << ". Dynamic allocation freed" << std::endl;
 	SDL_Quit();

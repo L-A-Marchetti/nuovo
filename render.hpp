@@ -35,7 +35,7 @@ class render
 		void control(controller* c);
 		void but(const std::vector<button*>& b, int x, int y, int pad);
 		void seq(sequencer* s);
-		void show(const std::vector<module*>& modules, controller* c, sequencer* s);
+		void show(const std::vector<module*>& modules, controller* c, int seq_disp);
 		SDL_Renderer* get_renderer();
 		void destroy();
 };
