@@ -62,7 +62,16 @@ void app::run()
 					}
 					continue;
                 }
-				if (SDL_PointInRect(&mouse, &this->c->start.r)) this->c->start.state = !this->c->start.state;
+				if (SDL_PointInRect(&mouse, &this->c->start.r))
+				{
+					if (this->c->start.state) this->c->start.state = false;
+					else 
+					{
+						if (bpm_thread.joinable()) bpm_thread.join();
+						this->c->start.state = true;
+						this->bpm_thread = std::thread(&app::bpm_worker, this);
+					}
+				}
 				if (SDL_PointInRect(&mouse, &this->c->tempo.fader_rect)) this->c->tempo.is_dragging = true;
 				if (SDL_PointInRect(&mouse, &this->c->volume.fader_rect)) this->c->volume.is_dragging = true;
 				for (int i = 0; i < this->modules[seq_disp]->s->buttons.size(); i++)
@@ -135,6 +144,7 @@ void app::bpm_worker()
 	int i = 0;
     	using namespace std::chrono;
     	int ticks_per_beat = 4;
+		int last_seq_disp = 0;
     	while (this->c->start.state)
 		{
 			int interval_ms = 60000 / (this->c->tempo.value * ticks_per_beat);
@@ -146,10 +156,12 @@ void app::bpm_worker()
 					std::thread(&module::play, this->modules[m]).detach();
 				}
 			}
-			//this->modules[seq_disp]->s->buttons[i%16].state = !this->modules[seq_disp]->s->buttons[i%16].state;
-			//if (i != 0) this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[seq_disp]->s->buttons[(i - 1 + 16) % 16].state;
+			this->modules[seq_disp]->s->buttons[i%16].state = !this->modules[seq_disp]->s->buttons[i%16].state;
+			if (i != 0) this->modules[last_seq_disp]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[last_seq_disp]->s->buttons[(i - 1 + 16) % 16].state;
+			last_seq_disp = seq_disp;
 			i++;
     	}
+	if (i != 0) this->modules[last_seq_disp]->s->buttons[(i - 1 + 16) % 16].state = !this->modules[last_seq_disp]->s->buttons[(i - 1 + 16) % 16].state;
 }
 
 void app::quit()
