@@ -103,7 +103,7 @@ void render::modules(const std::vector<module*>& modules)
 void render::control(controller* c)
 {
 	int x = 20;
-	int y = 550;
+	int y = 520;
 	int pad = 60;
 	text label(this->r, 18, BASIC);
 	text screen(this->r, 76, SCREEN);
@@ -196,6 +196,14 @@ void render::but(const std::vector<button*>& b, int x, int y, int pad)
         SDL_SetRenderDrawColor(this->r, b[i]->state ? LED.r : BLUE_GRAY.r,
             b[i]->state ? LED.g : BLUE_GRAY.g, b[i]->state ? LED.b : BLUE_GRAY.b, BLUE_GRAY.a);
         SDL_RenderFillRect(this->r, &button_led);
+        std::string l =
+        b[i]->label == "1" ? "BD" : b[i]->label == "2" ? "SD" : b[i]->label == "3" ?
+        "LT" : b[i]->label == "4" ? "MT" : b[i]->label == "5" ? "HT" : b[i]->label == "6" ?
+        "RS" : b[i]->label == "7" ? "CLP" : b[i]->label == "8" ? "COH" : b[i]->label == "9" ?
+        "OOH" : b[i]->label == "10" ? "CRH" : b[i]->label == "11" ? "RD" : " ";
+        label_text_width = l.size() * 18 * 0.5f;
+        label_center_x = current_x + (b[i]->size / 2) - (label_text_width / 2);
+        label.write(l, DARK_GRAY, label_center_x, b[i]->r.y + b[i]->r.h + pad);
         current_x += b[i]->size + pad;
     }
     label.destroy();
@@ -209,7 +217,7 @@ void render::seq(sequencer* s)
 	{
 		b.push_back(&s->buttons[i]);
 	}
-	this->but(b, 20, 750, 15);
+	this->but(b, 20, 720, 15);
 	return;
 }
 
