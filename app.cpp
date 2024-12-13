@@ -33,10 +33,10 @@ app::app(std::string title, int w, int h) : title(title), w(w), h(h), r(nullptr)
 	this->modules.push_back(new module("HIGH TOM", {{"TUNE", 45}, {"LEVEL", 109}, {"DECAY", 55}}, "high_tom.wav", ++chans));
 	this->modules.push_back(new module("RIM SHOT", {{"LEVEL", 47}}, "rim_shot.wav", ++chans));
 	this->modules.push_back(new module("HAND CLAP", {{"LEVEL", 77}}, "hand_clap.wav", ++chans));
-	this->modules.push_back(new module("CLOSED HAT", {{"LEVEL", 30}, {"CH DECAY", 65}}, "closed_hat.wav", ++chans));
-	this->modules.push_back(new module("OPEN HAT", {{"LEVEL", 74}, {"OH DECAY", 70}}, "open_hat.wav", chans));
+	this->modules.push_back(new module("CLOSED HAT", {{"LEVEL", 27}, {"CH DECAY", 65}}, "closed_hat.wav", ++chans));
+	this->modules.push_back(new module("OPEN HAT", {{"LEVEL", 51}, {"OH DECAY", 70}}, "open_hat.wav", chans));
 	this->modules.push_back(new module("CRASH", {{"LEVEL", 47}, {"DECAY", 80}, {"TUNE", 50}}, "crash.wav", ++chans));
-	this->modules.push_back(new module("RIDE", {{"LEVEL", 46}, {"DECAY", 80}, {"TUNE", 50}}, "ride.wav", ++chans));
+	this->modules.push_back(new module("RIDE", {{"LEVEL", 25}, {"DECAY", 80}, {"TUNE", 50}}, "ride.wav", ++chans));
 	std::cout << "\t" << ++i << ". Modules configured" << std::endl;
 	this->c = new controller();
 	std::cout << "\t" << ++i << ". Controller created" << std::endl;

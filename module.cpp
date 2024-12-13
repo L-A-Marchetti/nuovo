@@ -10,6 +10,7 @@ module::module(std::string label, std::vector<knob> knobs, std::string file, int
 	}
 	else this->sample = nullptr;
 	this->s = new sequencer();
+	this->set_chunk_volume();
 	return;
 }
 
