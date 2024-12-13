@@ -118,6 +118,7 @@ void app::run()
     			    int fader_width = this->c->volume.fader_rect.w;
     			    int new_value = std::clamp(mouse_x - knob_x, 0, fader_width);
     			    this->c->volume.value = (new_value * 127) / fader_width;
+					this->c->set_volume();
 				}
     			for (size_t m = 0; m < this->modules.size(); ++m)
 				{
@@ -131,6 +132,7 @@ void app::run()
     			            int fader_width = knobs[i].fader_rect.w;
     			            int new_value = std::clamp(mouse_x - knob_x, 0, fader_width);
     			            knobs[i].value = (new_value * 127) / fader_width;
+							if (knobs[i].label == "LEVEL") this->modules[m]->set_chunk_volume();
     			        }
     			    }
     			}

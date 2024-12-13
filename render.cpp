@@ -119,9 +119,18 @@ void render::control(controller* c)
         SDL_SetRenderDrawColor(this->r, SCREEN_BG.r, SCREEN_BG.g, SCREEN_BG.b, SCREEN_BG.a);
         SDL_RenderFillRect(this->r, &screen_bg);
         // Screen Text
-        int screen_text_width = std::to_string(c->tempo.value).size() * 76 * .52f; // Text width approximation
-        int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
-        screen.write(std::to_string(c->tempo.value), LED, screen_center_x, (screen_bg.y - 2));
+        if (c->volume.is_dragging)
+        {
+                int screen_text_width = std::to_string(c->volume.value).size() * 76 * .52f; // Text width approximation
+                int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
+                screen.write(std::to_string(c->volume.value), LED, screen_center_x, (screen_bg.y - 2));
+        }
+        else
+        {
+                int screen_text_width = std::to_string(c->tempo.value).size() * 76 * .52f; // Text width approximation
+                int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
+                screen.write(std::to_string(c->tempo.value), LED, screen_center_x, (screen_bg.y - 2));
+        }
         // faders
         // Fader background
         int w = 300;

@@ -23,6 +23,7 @@ class module
 		Mix_Chunk* sample;
 		sequencer* s;
 		void play();
+		void set_chunk_volume();
 };
 
 #endif //MODULE_HPP

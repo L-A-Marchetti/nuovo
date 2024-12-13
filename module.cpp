@@ -29,3 +29,18 @@ void module::play()
 	if (Mix_PlayChannel(this->chan, this->sample, 0) == -1) puts(Mix_GetError());
 	return;
 }
+
+void module::set_chunk_volume()
+{
+	int vol = 0;
+	for (int i = 0; i < this->knobs.size(); i++)
+	{
+		if (this->knobs[i].label == "LEVEL")
+		{
+			vol = this->knobs[i].value;
+			break;
+		}
+	}
+	Mix_VolumeChunk(this->sample, vol);
+	return;
+}
