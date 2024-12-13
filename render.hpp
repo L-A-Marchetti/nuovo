@@ -2,9 +2,9 @@
 #define RENDER_HPP
 
 
-#define TR_FONT "TR-909.ttf"
-#define BASIC "coolvetica.ttf"
-#define SCREEN "7segment.ttf"
+#define TR_FONT "fonts/TR-909.ttf"
+#define BASIC "fonts/coolvetica.ttf"
+#define SCREEN "fonts/7segment.ttf"
 #define BLUE_GRAY (SDL_Color){46, 67, 71, 255}
 #define GRAY (SDL_Color){196, 200, 194, 255}
 #define DARK_ORANGE (SDL_Color){239, 125, 58, 255}
