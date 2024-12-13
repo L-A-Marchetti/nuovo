@@ -32,7 +32,7 @@ class render
 		~render();
 		void background();
 		void modules(const std::vector<module*>& modules);
-		void control(controller* c);
+		void control(controller* c, std::vector<module*> modules);
 		void but(const std::vector<button*>& b, int x, int y, int pad);
 		void seq(sequencer* s);
 		void show(const std::vector<module*>& modules, controller* c, int seq_disp);

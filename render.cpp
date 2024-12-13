@@ -100,7 +100,7 @@ void render::modules(const std::vector<module*>& modules)
     label.destroy();
 }
 
-void render::control(controller* c)
+void render::control(controller* c, std::vector<module*> modules)
 {
 	int x = 20;
 	int y = 520;
@@ -119,13 +119,28 @@ void render::control(controller* c)
         SDL_SetRenderDrawColor(this->r, SCREEN_BG.r, SCREEN_BG.g, SCREEN_BG.b, SCREEN_BG.a);
         SDL_RenderFillRect(this->r, &screen_bg);
         // Screen Text
+        int knob_is_dragging = 0;
+        for (int i = 0; i < modules.size(); i++)
+        {       
+                std::vector<knob>& k = modules[i]->get_knobs();
+                for (int j = 0; j < k.size(); j++)
+                {
+                        if (k[j].is_dragging)
+                        {
+                                int screen_text_width = std::to_string(k[j].value).size() * 76 * .52f; // Text width approximation
+                                int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
+                                screen.write(std::to_string(k[j].value), LED, screen_center_x, (screen_bg.y - 2));
+                                knob_is_dragging = 1;
+                        }
+                }
+        }
         if (c->volume.is_dragging)
         {
                 int screen_text_width = std::to_string(c->volume.value).size() * 76 * .52f; // Text width approximation
                 int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
                 screen.write(std::to_string(c->volume.value), LED, screen_center_x, (screen_bg.y - 2));
         }
-        else
+        else if(!knob_is_dragging)
         {
                 int screen_text_width = std::to_string(c->tempo.value).size() * 76 * .52f; // Text width approximation
                 int screen_center_x = screen_bg.x + (screen_bg.w / 2) - (screen_text_width / 2); // Center on x
@@ -238,7 +253,7 @@ void render::show(const std::vector<module*>& modules, controller* c, int seq_di
         text slogan(this->r, 36, TR_FONT);
         slogan.write("Rhythm Composer", BLUE_GRAY, 1150, 70);
         this->modules(modules);
-	this->control(c);
+	this->control(c, modules);
 	this->seq(modules[seq_disp]->s);
 	model.destroy();
 	slogan.destroy();
